@@ -36,4 +36,9 @@ public class ProductRepository {
 
         return product;
     }
+
+    public void delete(String productId) {
+        Product product = findById(productId);
+        productData.remove(product);
+    }
 }
