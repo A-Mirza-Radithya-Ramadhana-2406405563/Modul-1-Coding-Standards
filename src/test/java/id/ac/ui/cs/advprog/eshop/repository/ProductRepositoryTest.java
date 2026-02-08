@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.eshop.repository;
 
+import id.ac.ui.cs.advprog.eshop.exception.ProductNotFoundException;
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ public class ProductRepositoryTest {
     }
 
     @Test
-    void TestFindAllIfMoreThanOneProduct() {
+    void testFindAllIfMoreThanOneProduct() {
         Product product1 = new Product();
         product1.setProductId("eb558e9f-1c39-460e-8860-71af6af63bd6");
         product1.setProductName("Sampo Cap Bambang");
@@ -64,5 +65,73 @@ public class ProductRepositoryTest {
         savedProduct = productIterator.next();
         assertEquals(product2.getProductId(), savedProduct.getProductId());
         assertFalse(productIterator.hasNext());
+    }
+
+    @Test
+    void testFindByIdIfProductExists() {
+        Product product = new Product();
+        product.setProductId("eb558e9f-1c39-460e-8860-71af6af63bd6");
+        product.setProductName("Sampo Cap Bambang");
+        product.setProductQuantity(100);
+        productRepository.create(product);
+
+        Product savedProduct = productRepository.findById(product.getProductId());
+        assertEquals(product, savedProduct);
+    }
+
+    @Test
+    void testFindByIdIfProductDoesNotExist() {
+        assertThrows(ProductNotFoundException.class, () -> {
+           productRepository.findById("NO_ID");
+        });
+    }
+
+    @Test
+    void testEditProductIfProductExists() {
+        Product product = new Product();
+        product.setProductId("eb558e9f-1c39-460e-8860-71af6af63bd6");
+        product.setProductName("Sampo Cap Bambang");
+        product.setProductQuantity(100);
+        productRepository.create(product);
+
+        Product editedProduct = new Product();
+        editedProduct.setProductName("Sampo Cap");
+        editedProduct.setProductQuantity(50);
+        productRepository.edit(product.getProductId(), editedProduct);
+
+        Product savedProduct = productRepository.findById(product.getProductId());
+        assertEquals("Sampo Cap", savedProduct.getProductName());
+        assertEquals(50, savedProduct.getProductQuantity());
+    }
+
+    @Test
+    void testEditProductIfProductDoesNotExist() {
+        Product editedProduct = new Product();
+        editedProduct.setProductName("Sampo Cap");
+        editedProduct.setProductQuantity(50);
+        assertThrows(ProductNotFoundException.class, () -> {
+            productRepository.edit("NO_ID", editedProduct);
+        });
+    }
+
+    @Test
+    void testDeleteProductIfProductExists() {
+        Product product = new Product();
+        product.setProductId("eb558e9f-1c39-460e-8860-71af6af63bd6");
+        product.setProductName("Sampo Cap Bambang");
+        product.setProductQuantity(100);
+        productRepository.create(product);
+        assertEquals(product, productRepository.findById(product.getProductId()));
+        productRepository.delete(product.getProductId());
+        assertThrows(ProductNotFoundException.class, () -> {
+            productRepository.findById(product.getProductId());
+        });
+    }
+
+    @Test
+    void testDeleteProductIfProductDoesNotExist() {
+        assertThrows(ProductNotFoundException.class, () -> {
+            productRepository.delete("NO_ID");
+        });
     }
 }
