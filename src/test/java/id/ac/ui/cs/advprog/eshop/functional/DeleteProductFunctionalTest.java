@@ -7,9 +7,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -32,6 +36,8 @@ public class DeleteProductFunctionalTest {
 
     @Test
     void deleteProductFlow_isCorrect(ChromeDriver driver) throws Exception {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         String createUrl = baseUrl + "/product/create";
         driver.get(createUrl);
 
@@ -45,10 +51,13 @@ public class DeleteProductFunctionalTest {
 
         driver.findElement(By.tagName("form")).submit();
 
-        driver.findElement(
-                By.xpath("//button[contains(text(),'Delete')]")
-        ).click();
+        WebElement deleteButton = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//td[contains(text(), 'Sampo cap Delete')]/following-sibling::td//button[contains(text(), 'Delete')]")
+        ));
 
+        deleteButton.click();
+
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//td[contains(text(), 'Sampo cap Delete')]")));
 
         String pageSource = driver.getPageSource();
         assertFalse(pageSource.contains("Sampo cap Delete"));
