@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ExtendWith(SeleniumJupiter.class)
-public class EditProductFunctionalTest {
+public class DeleteProductFunctionalTest {
     @LocalServerPort
     private int serverPort;
 
@@ -31,13 +31,13 @@ public class EditProductFunctionalTest {
     }
 
     @Test
-    void editProductFlow_isCorrect(ChromeDriver driver) throws Exception {
+    void deleteProductFlow_isCorrect(ChromeDriver driver) throws Exception {
         String createUrl = baseUrl + "/product/create";
         driver.get(createUrl);
 
         WebElement productNameInput = driver.findElement(By.id("nameInput"));
         productNameInput.clear();
-        productNameInput.sendKeys("Sampo cap Test");
+        productNameInput.sendKeys("Sampo cap Delete");
 
         WebElement productQuantityInput = driver.findElement(By.id("quantityInput"));
         productQuantityInput.clear();
@@ -45,22 +45,12 @@ public class EditProductFunctionalTest {
 
         driver.findElement(By.tagName("form")).submit();
 
-        driver.findElement(By.linkText("Edit")).click();
+        driver.findElement(
+                By.xpath("//button[contains(text(),'Delete')]")
+        ).click();
 
-        assertTrue(driver.getCurrentUrl().contains("/product/edit"));
-
-        productNameInput = driver.findElement(By.id("nameInput"));
-        productNameInput.clear();
-        productNameInput.sendKeys("Sampo cap Edit");
-
-        productQuantityInput = driver.findElement(By.id("quantityInput"));
-        productQuantityInput.clear();
-        productQuantityInput.sendKeys("16");
-
-        driver.findElement(By.tagName("form")).submit();
 
         String pageSource = driver.getPageSource();
-        assertTrue(pageSource.contains("Sampo cap Edit"));
-        assertTrue(pageSource.contains("16"));
+        assertFalse(pageSource.contains("Sampo cap Delete"));
     }
 }
